@@ -134,18 +134,53 @@ const verbose = args.includes('--verbose') || args.includes('-v') && !args.inclu
 const filesStr = getOpt('-f', '--files');
 const additionalFiles = filesStr ? filesStr.split(',').map(f => f.trim()).filter(f => f) : [];
 
-const content = fs.readFileSync(scriptPath, 'utf-8');
-const name = path.basename(scriptPath);
+let content = fs.readFileSync(scriptPath, 'utf-8');
+let name = path.basename(scriptPath);
 const scriptDir = path.dirname(path.resolve(scriptPath));
 
-// Find and load relative file dependencies
+// Handle TypeScript - just comment out imports and remove exports
+// The Bitburner environment will have NS available globally
+function processTypeScript(content) {
+  // Comment out all import statements
+  content = content.replace(/import\s+(?:{[^}]+}|[\w\s,*]+)\s+from\s+['"][^'"]+['"];?/gi, (match) => `// ${match}`);
+  
+  // Remove export keywords
+  content = content.replace(/export\s+(const|let|var|function|class|interface|type|enum)/g, '$1');
+  content = content.replace(/export\s+{[^}]+}/g, '');
+  content = content.replace(/export\s+default\s+/g, '');
+  content = content.replace(/export\s+async\s+function/g, 'async function');
+  
+  // Remove type definitions (including union types)
+  content = content.replace(/^type\s+\w+\s*=\s*[^;\n]+;?\s*$/gm, '// $&');
+  content = content.replace(/^interface\s+\w+\s*{[^}]+}\s*$/gm, '// $&');
+  content = content.replace(/^enum\s+\w+\s*{[^}]+}\s*$/gm, '// $&');
+  
+  // Remove type annotations from function parameters and return types
+  // Handle complex types like Record<string, {isOptimalSec: boolean}>
+  content = content.replace(/:\s*(?:Record|Map|Set|Array)<[^>]+>/g, '');
+  content = content.replace(/:\s*\w+(?:<[^>]+>)?(?:\[\])?(?:\s*\|\s*\w+(?:<[^>]+>)?(?:\[\])?)*\s*(?=[,\)=])/g, '');
+  content = content.replace(/\):\s*(?:Record|Map|Set|Array)<[^>]+>/g, ')');
+  content = content.replace(/\):\s*\w+(?:<[^>]+>)?(?:\[\])?(?:\s*\|\s*\w+(?:<[^>]+>)?(?:\[\])?)*\s*{/g, ') {');
+  content = content.replace(/\):\s*\w+(?:<[^>]+>)?(?:\[\])?(?:\s*\|\s*\w+(?:<[^>]+>)?(?:\[\])?)*\s*=>/g, ') =>');
+  
+  // Remove type assertions (as Type)
+  content = content.replace(/\s+as\s+\w+(?:<[^>]+>)?/g, '');
+  
+  // Remove generic type parameters from function definitions
+  content = content.replace(/function\s+\w+<[^>]+>\(/g, (match) => match.replace(/<[^>]+>/, ''));
+  
+  return content;
+}
+
+// Process TypeScript - comment out imports, remove exports and types
+content = processTypeScript(content);
+
+// Find and load relative file dependencies (like slave scripts that are exec'd)
 function findRelativeFiles(content, baseDir) {
   const files = [];
   // Match common patterns: exec("file.js"), write("file.js"), read("file.txt"), etc.
-  // Also match: ns.exec("file.js"), ns.write("file.txt"), etc.
   const patterns = [
-    /(?:ns\.)?(?:exec|scp|write|read|run|spawn)\s*\(\s*["']([^"']+\.(?:js|ns|txt|script))/gi,
-    /["']([^"']+\.(?:js|ns|txt|script))["']/gi
+    /(?:ns\.)?(?:exec|scp|write|read|run|spawn)\s*\(\s*["']([^"']+\.(?:js|ts|ns|txt|script))/gi,
   ];
   
   for (const pattern of patterns) {
@@ -164,15 +199,16 @@ function findRelativeFiles(content, baseDir) {
   for (const relPath of [...new Set(files)]) {
     const fullPath = path.join(baseDir, relPath);
     if (fs.existsSync(fullPath)) {
-      const fileContent = fs.readFileSync(fullPath, 'utf-8');
-      loaded.set(relPath, fileContent);
-      // Recursively find dependencies in this file
-      const nestedFiles = findRelativeFiles(fileContent, path.dirname(fullPath));
-      for (const [npath, ncontent] of nestedFiles) {
-        if (!loaded.has(npath)) {
-          loaded.set(npath, ncontent);
-        }
+      let fileContent = fs.readFileSync(fullPath, 'utf-8');
+      // Also process TypeScript in dependency files
+      fileContent = processTypeScript(fileContent);
+      
+      // Convert .ts to .js in the filename
+      let fileName = relPath;
+      if (fileName.endsWith('.ts')) {
+        fileName = fileName.replace(/\.ts$/, '.js');
       }
+      loaded.set(fileName, fileContent);
     }
   }
   
@@ -180,6 +216,11 @@ function findRelativeFiles(content, baseDir) {
 }
 
 const relativeFiles = findRelativeFiles(content, scriptDir);
+
+// Convert .ts to .js for the main script name (Bitburner expects .js)
+if (name.endsWith('.ts')) {
+  name = name.replace(/\.ts$/, '.js');
+}
 
 // Add manually specified files
 for (const filePath of additionalFiles) {

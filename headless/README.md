@@ -70,3 +70,27 @@ describe("My Script", () => {
 - `fixDoImportIssue()` - Fix imports (call once)
 
 See examples in `test/examples/`.
+
+## TypeScript Support
+
+The CLI supports TypeScript files with imports:
+
+```typescript
+// utils.ts
+export function helper() {
+  return "value";
+}
+
+// main.ts
+import { helper } from './utils';
+
+export async function main(ns: NS) {
+  ns.print(helper());
+}
+```
+
+**Limitations:**
+- Complex TypeScript patterns may cause "Cannot calculate RAM usage" errors
+- Only relative imports (`./` or `../`) are supported
+- External npm packages are not available in Bitburner environment
+- If errors occur, simplify type annotations or test with plain JavaScript

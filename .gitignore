@@ -33,3 +33,11 @@ dist/*.worker.*
 *.bundle.*
 index.html
 tsdoc-metadata.json
+
+# Headless generated files - keep only TypeScript source
+headless/**/*.js
+headless/**/*.d.ts
+!headless/cli-wrapper.js
+headless/src/
+headless/test/
+headless/headless/

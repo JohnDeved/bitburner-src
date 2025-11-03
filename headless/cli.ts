@@ -190,7 +190,7 @@ async function simulateScript(
     if (json) {
       console.log(JSON.stringify(result, null, 2));
     } else {
-      console.log(`\n📊 Results:`);
+      console.log(`\n📊 Simulation Results:`);
       console.log(`   Status: ${result.success ? "✅ Success" : "❌ Failed"}`);
       if (result.error) {
         console.log(`   Error: ${result.error}`);
@@ -199,16 +199,55 @@ async function simulateScript(
       console.log(`   Final Money: $${result.finalMoney.toFixed(2)}`);
       console.log(`   Money Gained: $${result.moneyGained.toFixed(2)}`);
       console.log(`   Time Simulated: ${(result.timeSimulated / 1000).toFixed(2)}s`);
-      console.log(`   Completions: ${result.completions}`);
+      console.log(`   Script Completions: ${result.completions}`);
       
       if (result.timeSimulated > 0 && result.moneyGained > 0) {
         const moneyPerSecond = (result.moneyGained / result.timeSimulated) * 1000;
+        const moneyPerMinute = moneyPerSecond * 60;
         const moneyPerHour = moneyPerSecond * 3600;
-        console.log(`\n💰 Earnings:`);
-        console.log(`   Per second: $${moneyPerSecond.toFixed(2)}/s`);
-        console.log(`   Per hour: $${moneyPerHour.toFixed(2)}/hr`);
+        const moneyPerDay = moneyPerHour * 24;
+        
+        console.log(`\n💰 Money Generation Rate:`);
+        console.log(`   $${moneyPerSecond.toFixed(2)} per second`);
+        console.log(`   $${moneyPerMinute.toFixed(2)} per minute`);
+        console.log(`   $${moneyPerHour.toFixed(2)} per hour`);
+        console.log(`   $${moneyPerDay.toFixed(2)} per day`);
+        
+        // Show projections
+        console.log(`\n📈 Projections:`);
+        const timeToMillion = moneyPerSecond > 0 ? 1000000 / moneyPerSecond : Infinity;
+        const timeToBillion = moneyPerSecond > 0 ? 1000000000 / moneyPerSecond : Infinity;
+        
+        if (timeToMillion < 3600) {
+          console.log(`   Time to $1M: ${(timeToMillion / 60).toFixed(1)} minutes`);
+        } else if (timeToMillion < 86400) {
+          console.log(`   Time to $1M: ${(timeToMillion / 3600).toFixed(1)} hours`);
+        } else {
+          console.log(`   Time to $1M: ${(timeToMillion / 86400).toFixed(1)} days`);
+        }
+        
+        if (timeToBillion < 3600) {
+          console.log(`   Time to $1B: ${(timeToBillion / 60).toFixed(1)} minutes`);
+        } else if (timeToBillion < 86400) {
+          console.log(`   Time to $1B: ${(timeToBillion / 3600).toFixed(1)} hours`);
+        } else {
+          console.log(`   Time to $1B: ${(timeToBillion / 86400).toFixed(1)} days`);
+        }
+        
+        // Show efficiency metrics
+        if (result.completions > 0) {
+          const avgTimePerRun = result.timeSimulated / result.completions;
+          const avgMoneyPerRun = result.moneyGained / result.completions;
+          console.log(`\n⚡ Efficiency Metrics:`);
+          console.log(`   Average time per run: ${(avgTimePerRun / 1000).toFixed(2)}s`);
+          console.log(`   Average money per run: $${avgMoneyPerRun.toFixed(2)}`);
+        }
       } else if (result.success && result.moneyGained === 0) {
         console.log(`\n   ℹ️  Script completed but no money was gained`);
+        console.log(`   This might be a utility script or it needs more time to generate money.`);
+      } else if (result.success && result.moneyGained < 0) {
+        console.log(`\n   ⚠️  Script lost money: $${Math.abs(result.moneyGained).toFixed(2)}`);
+        console.log(`   This might be intentional (spending money) or indicate an issue.`);
       }
 
       if (result.logs.length > 0) {

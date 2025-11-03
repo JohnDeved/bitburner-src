@@ -52,6 +52,21 @@ describe("My Script Tests", () => {
 });
 ```
 
+## CLI Usage
+
+After installing, you can also test scripts directly from the command line:
+
+```bash
+# Test if a script loads correctly
+npx JohnDeved/bitburner-src my-hack-script.js --test-only
+
+# Simulate a script and track money generation
+npx JohnDeved/bitburner-src my-hack-script.js --time 120000
+
+# Get JSON output for parsing
+npx JohnDeved/bitburner-src my-hack-script.js --json
+```
+
 See the [headless environment documentation](./headless/README.md) for more details and examples.
 
 # Documentation

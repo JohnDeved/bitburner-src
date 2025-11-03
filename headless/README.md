@@ -8,9 +8,13 @@ A headless test environment for Bitburner TypeScript scripts. This package allow
 npm install --save-dev JohnDeved/bitburner-src
 ```
 
+**Note:** The CLI currently works best when the package is installed in your project. Direct execution from the GitHub repository may encounter module loading issues due to complex dependencies.
+
 ## Usage
 
-### Basic Test Setup
+### Testing with Jest
+
+The recommended way to use the headless environment is with Jest or another testing framework:
 
 ```typescript
 import {
@@ -65,6 +69,81 @@ describe("My Bitburner Script Tests", () => {
   });
 });
 ```
+
+### Simulating Scripts Over Time
+
+Test how much money your hacking scripts generate:
+
+```typescript
+import {
+  setupBasicTestingEnvironment,
+  initGameEnvironment,
+  fixDoImportIssue,
+  Player,
+  resetPidCounter,
+  simulateScript,
+  type ScriptFilePath,
+} from "bitburner/headless";
+
+fixDoImportIssue();
+initGameEnvironment();
+
+describe("Script Performance Tests", () => {
+  beforeEach(() => {
+    setupBasicTestingEnvironment();
+    resetPidCounter();
+  });
+
+  test("should generate money over time", async () => {
+    const server = Player.getHomeComputer();
+    const scriptPath = "hack.js" as ScriptFilePath;
+    
+    // Write your hacking script
+    server.writeToScriptFile(scriptPath, `
+      export async function main(ns) {
+        const target = ns.args[0] || "n00dles";
+        await ns.hack(target);
+      }
+    `);
+    
+    // Simulate the script running for 60 seconds
+    const result = await simulateScript(scriptPath, ["n00dles"], {
+      maxTime: 60000,
+    });
+    
+    expect(result.success).toBe(true);
+    console.log(\`Money gained: $\${result.moneyGained}\`);
+    console.log(\`Money per second: $\${result.moneyGained / (result.timeSimulated / 1000)}\`);
+  });
+});
+```
+
+### CLI Usage (When Installed)
+
+After installing the package in your project, you can test scripts from the command line:
+
+```bash
+# Test if a script loads correctly
+npx bitburner-src my-hack-script.js --test-only
+
+# Simulate a script for 2 minutes and track money generation
+npx bitburner-src my-hack-script.js --time 120000
+
+# Pass arguments to your script
+npx bitburner-src my-hack-script.js --args "n00dles,foodnstuff"
+
+# Get JSON output for parsing
+npx bitburner-src my-hack-script.js --json > results.json
+```
+
+CLI Options:
+- `--time <ms>` - Simulation time in milliseconds (default: 60000)
+- `--args <args>` - Script arguments (comma-separated)
+- `--threads <n>` - Number of threads (default: 1)
+- `--json` - Output results as JSON
+- `--test-only` - Only test if script loads, don't run simulation
+- `--help, -h` - Show help message
+- `--version, -v` - Show version information
 
 ### Running Scripts in Tests
 

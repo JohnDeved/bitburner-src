@@ -41,3 +41,4 @@ headless/**/*.d.ts
 headless/src/
 headless/test/
 headless/headless/
+test/jest/.cli-temp/

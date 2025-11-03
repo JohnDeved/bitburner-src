@@ -42,3 +42,4 @@ headless/src/
 headless/test/
 headless/headless/
 test/jest/.cli-temp/
+!headless/cli-jest.js

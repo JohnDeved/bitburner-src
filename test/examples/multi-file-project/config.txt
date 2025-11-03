@@ -1,3 +1,0 @@
-target=n00dles
-maxMoney=1000000
-hackPercentage=0.1

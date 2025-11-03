@@ -25,6 +25,7 @@ Usage:
 
 Options:
   -t, --time <minutes>   How long to simulate (default: 30 minutes)
+  -f, --files <list>     Comma-separated list of files to upload to home
   --json                 Output as JSON
   -q, --quiet            Minimal output (only results)
   -v, --verbose          Show script logs
@@ -32,9 +33,10 @@ Options:
 Script Arguments:
   Any arguments before options are passed to your script
   
-Relative Files:
-  The CLI automatically detects and loads relative files referenced
-  by your script (e.g., worker scripts for ns.exec()).
+File Loading:
+  - Automatically detects files referenced in your script
+  - Use --files to manually specify additional files to upload
+  - All files are uploaded to the home server before simulation
   
 Examples:
   # Simple usage
@@ -44,12 +46,13 @@ Examples:
   npx JohnDeved/bitburner-src hack.js --time 60
   npx JohnDeved/bitburner-src hack.js -t 60
   
+  # Upload multiple files to home server
+  npx JohnDeved/bitburner-src main.js --files utils.js,config.txt
+  npx JohnDeved/bitburner-src main.js -f lib/helper.js,data.txt
+  
   # Pass arguments to your script
   npx JohnDeved/bitburner-src hack.js n00dles 10
   npx JohnDeved/bitburner-src hack.js foodnstuff --time 30
-  
-  # With worker files (automatically loaded)
-  npx JohnDeved/bitburner-src batch.js
   
   # JSON output for parsing
   npx JohnDeved/bitburner-src hack.js --json
@@ -67,7 +70,7 @@ if (args.includes('--version') || args.includes('-v') && !args.includes('--verbo
 }
 
 // Parse arguments - separate script args from CLI options
-const cliOptions = ['--time', '-t', '--json', '--quiet', '-q', '--verbose', '-v'];
+const cliOptions = ['--time', '-t', '--files', '-f', '--json', '--quiet', '-q', '--verbose', '-v'];
 let scriptPath = null;
 const scriptArgs = [];
 let i = 0;
@@ -78,7 +81,7 @@ while (i < args.length) {
   
   if (cliOptions.includes(arg)) {
     // Skip CLI option and its value if applicable
-    if (arg === '--time' || arg === '-t') {
+    if (arg === '--time' || arg === '-t' || arg === '--files' || arg === '-f') {
       i += 2; // Skip option and value
     } else {
       i += 1; // Skip flag
@@ -128,6 +131,9 @@ const json = args.includes('--json');
 const quiet = args.includes('--quiet') || args.includes('-q');
 const verbose = args.includes('--verbose') || args.includes('-v') && !args.includes('--version');
 
+const filesStr = getOpt('-f', '--files');
+const additionalFiles = filesStr ? filesStr.split(',').map(f => f.trim()).filter(f => f) : [];
+
 const content = fs.readFileSync(scriptPath, 'utf-8');
 const name = path.basename(scriptPath);
 const scriptDir = path.dirname(path.resolve(scriptPath));
@@ -174,6 +180,26 @@ function findRelativeFiles(content, baseDir) {
 }
 
 const relativeFiles = findRelativeFiles(content, scriptDir);
+
+// Add manually specified files
+for (const filePath of additionalFiles) {
+  // Try both relative to current directory and relative to script directory
+  let fullPath = path.resolve(filePath);
+  if (!fs.existsSync(fullPath)) {
+    fullPath = path.resolve(scriptDir, filePath);
+  }
+  
+  if (!fs.existsSync(fullPath)) {
+    console.error(`\n❌ Cannot find file: ${filePath}\n`);
+    console.error(`Tried:\n  ${path.resolve(filePath)}\n  ${path.resolve(scriptDir, filePath)}\n`);
+    process.exit(1);
+  }
+  
+  const fileContent = fs.readFileSync(fullPath, 'utf-8');
+  // Use basename for the key to match how files appear on home server
+  const fileName = path.basename(filePath);
+  relativeFiles.set(fileName, fileContent);
+}
 
 const tempDir = path.join(__dirname, '..', 'test', 'jest', '.cli-temp');
 if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });

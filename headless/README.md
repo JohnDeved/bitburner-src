@@ -123,27 +123,41 @@ describe("Script Performance Tests", () => {
 After installing the package in your project, you can test scripts from the command line:
 
 ```bash
-# Test if a script loads correctly
-npx bitburner-src my-hack-script.js --test-only
+# Simple usage - simulate for 30 minutes
+npx bitburner-src my-hack-script.js
 
-# Simulate a script for 2 minutes and track money generation
-npx bitburner-src my-hack-script.js --time 120000
+# Simulate for custom time (in minutes)
+npx bitburner-src my-hack-script.js --time 60
+npx bitburner-src my-hack-script.js -t 60
 
 # Pass arguments to your script
-npx bitburner-src my-hack-script.js --args "n00dles,foodnstuff"
+npx bitburner-src my-hack-script.js n00dles 10
+
+# Upload multiple files to home server
+npx bitburner-src main.js --files utils.js,config.txt,worker.js
+npx bitburner-src main.js -f lib/helper.js,data.txt
+
+# Quiet mode (minimal output)
+npx bitburner-src my-hack-script.js -q
+
+# Verbose mode (show script logs)
+npx bitburner-src my-hack-script.js -v
 
 # Get JSON output for parsing
 npx bitburner-src my-hack-script.js --json > results.json
 ```
 
 CLI Options:
-- `--time <ms>` - Simulation time in milliseconds (default: 60000)
-- `--args <args>` - Script arguments (comma-separated)
-- `--threads <n>` - Number of threads (default: 1)
+- `-t, --time <minutes>` - Simulation time in minutes (default: 30)
+- `-f, --files <list>` - Comma-separated list of files to upload to home
 - `--json` - Output results as JSON
-- `--test-only` - Only test if script loads, don't run simulation
+- `-q, --quiet` - Minimal output (only results)
+- `-v, --verbose` - Show script logs
 - `--help, -h` - Show help message
-- `--version, -v` - Show version information
+- `--version` - Show version information
+
+**Multi-File Projects:**
+The CLI automatically detects files referenced in your code (via `ns.exec()`, `ns.scp()`, etc.) and loads them. Use `--files` to manually specify additional files to upload to the home server, just like working with files in the actual game!
 
 ### Running Scripts in Tests
 

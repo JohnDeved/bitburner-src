@@ -1,0 +1,11 @@
+import type { PlayerObject } from "./PlayerObject";
+import type { FactionName } from "@enums";
+import type { Faction } from "../../Faction/Faction";
+import { Result } from "../../types";
+export declare function canAccessGang(this: PlayerObject): Result;
+export declare function isAwareOfGang(this: PlayerObject): boolean;
+export declare function getGangFaction(this: PlayerObject): Faction;
+export declare function getGangName(this: PlayerObject): FactionName | null;
+export declare function hasGangWith(this: PlayerObject, facName: FactionName): boolean;
+export declare function startGang(this: PlayerObject, factionName: FactionName, hacking: boolean): void;
+export declare function inGang(this: PlayerObject): boolean;

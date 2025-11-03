@@ -31,6 +31,15 @@ export type { ScriptFilePath } from "../src/Paths/ScriptFilePath";
 // Re-export NetscriptFunctions type
 export type { NSFull } from "../src/NetscriptFunctions";
 
+// Re-export simulation utilities
+export {
+  simulateScript,
+  calculateHackingRate,
+  estimateTimeToReachMoney,
+  type SimulationResult,
+  type SimulationOptions,
+} from "./simulation";
+
 /**
  * Note: For full Netscript type definitions (NS, Player, Server, etc.),
  * you can import them directly from the source:

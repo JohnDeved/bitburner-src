@@ -4,6 +4,9 @@
   "version": "3.0.0",
   "main": "electron-main.js",
   "types": "headless/index.ts",
+  "bin": {
+    "bitburner-src": "./headless/cli-wrapper.js"
+  },
   "exports": {
     ".": {
       "types": "./headless/index.ts",
@@ -58,7 +61,8 @@
     "react-syntax-highlighter": "^15.6.6",
     "remark-gfm": "^3.0.1",
     "sprintf-js": "^1.1.3",
-    "tss-react": "^4.9.19"
+    "tss-react": "^4.9.19",
+    "tsx": "^4.20.6"
   },
   "description": "A cyberpunk-themed incremental game",
   "devDependencies": {

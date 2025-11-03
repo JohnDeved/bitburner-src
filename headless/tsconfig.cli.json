@@ -1,0 +1,34 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "lib": ["ES2020"],
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": false,
+    "noEmit": true,
+    "jsx": "react",
+    "baseUrl": "..",
+    "paths": {
+      "@player": ["src/Player"],
+      "@enums": ["src/Enums"],
+      "@nsdefs": ["src/ScriptEditor/NetscriptDefinitions"]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": true,
+    "compilerOptions": {
+      "module": "commonjs"
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.test.ts",
+    "**/*.test.tsx"
+  ]
+}

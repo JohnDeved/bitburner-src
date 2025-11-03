@@ -11,6 +11,49 @@ The location of the release build may change in the near future.
 
 See the [frequently asked questions](./doc/FAQ.md) for more information. To discuss the game or get help, join the [official Discord server](https://discord.gg/TFc3hKD).
 
+# Headless Test Environment
+
+For developers who want to test their Bitburner scripts in a Node.js environment without running the full game, we provide a headless test environment. This is useful for:
+
+- Unit testing your scripts
+- CI/CD integration
+- Offline script development and testing
+
+## Installation
+
+```bash
+npm install --save-dev JohnDeved/bitburner-src
+```
+
+## Quick Start
+
+```typescript
+import {
+  getNS,
+  setupBasicTestingEnvironment,
+  initGameEnvironment,
+  fixDoImportIssue,
+} from "bitburner/headless";
+
+// Initialize once
+fixDoImportIssue();
+initGameEnvironment();
+
+describe("My Script Tests", () => {
+  beforeEach(() => {
+    setupBasicTestingEnvironment();
+  });
+
+  test("should hack a server", () => {
+    const ns = getNS();
+    const server = ns.getServer("n00dles");
+    expect(server.hostname).toBe("n00dles");
+  });
+});
+```
+
+See the [headless environment documentation](./headless/README.md) for more details and examples.
+
 # Documentation
 
 There are 2 types of documentation:

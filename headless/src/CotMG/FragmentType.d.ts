@@ -1,0 +1,20 @@
+import type { FragmentType } from "@nsdefs";
+export declare const FragmentTypeEnum: {
+    readonly HackingSpeed: 3;
+    readonly HackingMoney: 4;
+    readonly HackingGrow: 5;
+    readonly Hacking: 6;
+    readonly Strength: 7;
+    readonly Defense: 8;
+    readonly Dexterity: 9;
+    readonly Agility: 10;
+    readonly Charisma: 11;
+    readonly HacknetMoney: 12;
+    readonly HacknetCost: 13;
+    readonly Rep: 14;
+    readonly WorkMoney: 15;
+    readonly Crime: 16;
+    readonly Bladeburner: 17;
+    readonly Booster: 18;
+};
+export declare function Effect(type: FragmentType): string;

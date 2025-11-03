@@ -1,0 +1,97 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.BladeburnerMultName = exports.BladeburnerSkillName = exports.BladeburnerBlackOpName = exports.BladeburnerOperationName = exports.BladeburnerContractName = exports.SpecialBladeburnerActionTypeForSleeve = exports.BladeburnerGeneralActionName = exports.BladeburnerActionType = void 0;
+var BladeburnerActionType;
+(function (BladeburnerActionType) {
+    BladeburnerActionType["General"] = "General";
+    BladeburnerActionType["Contract"] = "Contracts";
+    BladeburnerActionType["Operation"] = "Operations";
+    BladeburnerActionType["BlackOp"] = "Black Operations";
+})(BladeburnerActionType || (exports.BladeburnerActionType = BladeburnerActionType = {}));
+var BladeburnerGeneralActionName;
+(function (BladeburnerGeneralActionName) {
+    BladeburnerGeneralActionName["Training"] = "Training";
+    BladeburnerGeneralActionName["FieldAnalysis"] = "Field Analysis";
+    BladeburnerGeneralActionName["Recruitment"] = "Recruitment";
+    BladeburnerGeneralActionName["Diplomacy"] = "Diplomacy";
+    BladeburnerGeneralActionName["HyperbolicRegen"] = "Hyperbolic Regeneration Chamber";
+    BladeburnerGeneralActionName["InciteViolence"] = "Incite Violence";
+})(BladeburnerGeneralActionName || (exports.BladeburnerGeneralActionName = BladeburnerGeneralActionName = {}));
+var SpecialBladeburnerActionTypeForSleeve;
+(function (SpecialBladeburnerActionTypeForSleeve) {
+    SpecialBladeburnerActionTypeForSleeve["InfiltrateSynthoids"] = "Infiltrate Synthoids";
+    SpecialBladeburnerActionTypeForSleeve["SupportMainSleeve"] = "Support main sleeve";
+    SpecialBladeburnerActionTypeForSleeve["TakeOnContracts"] = "Take on contracts";
+})(SpecialBladeburnerActionTypeForSleeve || (exports.SpecialBladeburnerActionTypeForSleeve = SpecialBladeburnerActionTypeForSleeve = {}));
+var BladeburnerContractName;
+(function (BladeburnerContractName) {
+    BladeburnerContractName["Tracking"] = "Tracking";
+    BladeburnerContractName["BountyHunter"] = "Bounty Hunter";
+    BladeburnerContractName["Retirement"] = "Retirement";
+})(BladeburnerContractName || (exports.BladeburnerContractName = BladeburnerContractName = {}));
+var BladeburnerOperationName;
+(function (BladeburnerOperationName) {
+    BladeburnerOperationName["Investigation"] = "Investigation";
+    BladeburnerOperationName["Undercover"] = "Undercover Operation";
+    BladeburnerOperationName["Sting"] = "Sting Operation";
+    BladeburnerOperationName["Raid"] = "Raid";
+    BladeburnerOperationName["StealthRetirement"] = "Stealth Retirement Operation";
+    BladeburnerOperationName["Assassination"] = "Assassination";
+})(BladeburnerOperationName || (exports.BladeburnerOperationName = BladeburnerOperationName = {}));
+var BladeburnerBlackOpName;
+(function (BladeburnerBlackOpName) {
+    BladeburnerBlackOpName["OperationTyphoon"] = "Operation Typhoon";
+    BladeburnerBlackOpName["OperationZero"] = "Operation Zero";
+    BladeburnerBlackOpName["OperationX"] = "Operation X";
+    BladeburnerBlackOpName["OperationTitan"] = "Operation Titan";
+    BladeburnerBlackOpName["OperationAres"] = "Operation Ares";
+    BladeburnerBlackOpName["OperationArchangel"] = "Operation Archangel";
+    BladeburnerBlackOpName["OperationJuggernaut"] = "Operation Juggernaut";
+    BladeburnerBlackOpName["OperationRedDragon"] = "Operation Red Dragon";
+    BladeburnerBlackOpName["OperationK"] = "Operation K";
+    BladeburnerBlackOpName["OperationDeckard"] = "Operation Deckard";
+    BladeburnerBlackOpName["OperationTyrell"] = "Operation Tyrell";
+    BladeburnerBlackOpName["OperationWallace"] = "Operation Wallace";
+    BladeburnerBlackOpName["OperationShoulderOfOrion"] = "Operation Shoulder of Orion";
+    BladeburnerBlackOpName["OperationHyron"] = "Operation Hyron";
+    BladeburnerBlackOpName["OperationMorpheus"] = "Operation Morpheus";
+    BladeburnerBlackOpName["OperationIonStorm"] = "Operation Ion Storm";
+    BladeburnerBlackOpName["OperationAnnihilus"] = "Operation Annihilus";
+    BladeburnerBlackOpName["OperationUltron"] = "Operation Ultron";
+    BladeburnerBlackOpName["OperationCenturion"] = "Operation Centurion";
+    BladeburnerBlackOpName["OperationVindictus"] = "Operation Vindictus";
+    BladeburnerBlackOpName["OperationDaedalus"] = "Operation Daedalus";
+})(BladeburnerBlackOpName || (exports.BladeburnerBlackOpName = BladeburnerBlackOpName = {}));
+var BladeburnerSkillName;
+(function (BladeburnerSkillName) {
+    BladeburnerSkillName["BladesIntuition"] = "Blade's Intuition";
+    BladeburnerSkillName["Cloak"] = "Cloak";
+    BladeburnerSkillName["ShortCircuit"] = "Short-Circuit";
+    BladeburnerSkillName["DigitalObserver"] = "Digital Observer";
+    BladeburnerSkillName["Tracer"] = "Tracer";
+    BladeburnerSkillName["Overclock"] = "Overclock";
+    BladeburnerSkillName["Reaper"] = "Reaper";
+    BladeburnerSkillName["EvasiveSystem"] = "Evasive System";
+    BladeburnerSkillName["Datamancer"] = "Datamancer";
+    BladeburnerSkillName["CybersEdge"] = "Cyber's Edge";
+    BladeburnerSkillName["HandsOfMidas"] = "Hands of Midas";
+    BladeburnerSkillName["Hyperdrive"] = "Hyperdrive";
+})(BladeburnerSkillName || (exports.BladeburnerSkillName = BladeburnerSkillName = {}));
+var BladeburnerMultName;
+(function (BladeburnerMultName) {
+    BladeburnerMultName["SuccessChanceAll"] = "Total Success Chance";
+    BladeburnerMultName["SuccessChanceStealth"] = "Stealth Success Chance";
+    BladeburnerMultName["SuccessChanceKill"] = "Retirement Success Chance";
+    BladeburnerMultName["SuccessChanceContract"] = "Contract Success Chance";
+    BladeburnerMultName["SuccessChanceOperation"] = "Operation Success Chance";
+    BladeburnerMultName["SuccessChanceEstimate"] = "Synthoid Data Estimate";
+    BladeburnerMultName["ActionTime"] = "Action Time";
+    BladeburnerMultName["EffStr"] = "Effective Strength";
+    BladeburnerMultName["EffDef"] = "Effective Defense";
+    BladeburnerMultName["EffDex"] = "Effective Dexterity";
+    BladeburnerMultName["EffAgi"] = "Effective Agility";
+    BladeburnerMultName["EffCha"] = "Effective Charisma";
+    BladeburnerMultName["Stamina"] = "Stamina";
+    BladeburnerMultName["Money"] = "Contract Money";
+    BladeburnerMultName["ExpGain"] = "Experience Gain";
+})(BladeburnerMultName || (exports.BladeburnerMultName = BladeburnerMultName = {}));

@@ -1,0 +1,10 @@
+import { JobName, JobField } from "@enums";
+export declare const JobTracks: Record<JobField, readonly JobName[]>;
+export declare const softwareJobs: readonly JobName[];
+export declare const itJobs: readonly JobName[];
+export declare const netEngJobs: readonly JobName[];
+export declare const businessJobs: readonly JobName[];
+export declare const securityJobs: readonly JobName[];
+export declare const agentJobs: readonly JobName[];
+export declare const softwareConsultJobs: readonly JobName[];
+export declare const businessConsultJobs: readonly JobName[];

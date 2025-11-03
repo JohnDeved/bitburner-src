@@ -87,6 +87,7 @@ const scriptBasename = path.basename(scriptPath);
 const testContent = `
 import {
   setupBasicTestingEnvironment,
+  setupHackingTestEnvironment,
   initGameEnvironment,
   fixDoImportIssue,
   Player,
@@ -101,7 +102,8 @@ initGameEnvironment();
 
 describe("CLI Runner", () => {
   beforeEach(() => {
-    setupBasicTestingEnvironment();
+    // Use hacking environment so player can actually hack servers
+    setupHackingTestEnvironment();
     resetPidCounter();
   });
 
@@ -155,9 +157,10 @@ describe("CLI Runner", () => {
         console.log(JSON.stringify(result, null, 2));
       } else {
         console.log(\`\\n🚀 Simulating script: \${scriptPath}\`);
-        console.log(\`   Duration: \${(time / 1000).toFixed(1)}s\`);
+        console.log(\`   Duration: \${(time / 1000).toFixed(1)}s (\${(time / 60000).toFixed(1)} minutes)\`);
         console.log(\`   Arguments: \${scriptArgs.join(", ") || "none"}\`);
         console.log(\`   Starting money: $\${Player.money.toFixed(2)}\`);
+        console.log(\`   Mode: ⚡ Fast simulation (runs one iteration, then extrapolates)\`);
         console.log(\`\\n   Running simulation...\\n\`);
         
         console.log("📊 Simulation Results:");

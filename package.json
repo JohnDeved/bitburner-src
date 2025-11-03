@@ -5,7 +5,7 @@
   "main": "electron-main.js",
   "types": "headless/index.ts",
   "bin": {
-    "bitburner-src": "./headless/cli-jest.js"
+    "bitburner-src": "./headless/cli-simple.js"
   },
   "exports": {
     ".": {

@@ -55,6 +55,43 @@ export function setupBasicTestingEnvironment(): void {
   initForeignServers(Player.getHomeComputer());
 }
 
+/**
+ * Setup testing environment with a player capable of hacking
+ * This is useful for CLI simulations where you want to actually test hacking scripts
+ */
+export function setupHackingTestEnvironment(): void {
+  setupBasicTestingEnvironment();
+  
+  // Give the player good hacking skills
+  Player.skills.hacking = 100;
+  Player.exp.hacking = 100000;
+  
+  // Give the player some starting money
+  Player.money = 100000;
+  
+  // Increase home RAM for running scripts
+  const home = Player.getHomeComputer();
+  home.maxRam = 64;
+  
+  // Give admin rights on some servers
+  const easyServers = ["n00dles", "foodnstuff", "sigma-cosmetics", "joesguns"];
+  for (const serverName of easyServers) {
+    try {
+      const server = GetServerOrThrow(serverName);
+      server.hasAdminRights = true;
+      server.backdoorInstalled = false;
+      // Reduce security to minimum for testing
+      server.hackDifficulty = server.minDifficulty;
+      // Ensure server has money
+      if (server.moneyMax && server.moneyMax > 0) {
+        server.moneyAvailable = server.moneyMax;
+      }
+    } catch (e) {
+      // Server doesn't exist, skip it
+    }
+  }
+}
+
 export function getNS(): NSFull {
   const home = GetServerOrThrow(SpecialServers.Home);
   home.maxRam = 1024;

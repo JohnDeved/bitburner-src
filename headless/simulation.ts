@@ -45,6 +45,156 @@ export interface SimulationOptions {
   checkInterval?: number;
   /** Timeout for script to complete in milliseconds (default: 300000) */
   timeout?: number;
+  /** Enable fast mode - runs multiple iterations quickly (default: true) */
+  fastMode?: boolean;
+  /** Number of iterations to run in fast mode (default: calculated from maxTime) */
+  iterations?: number;
+}
+
+/**
+ * Fast simulation that runs multiple script iterations quickly
+ * without waiting for real-time delays
+ */
+async function fastSimulate(
+  scriptPath: ScriptFilePath,
+  args: (string | number | boolean)[] = [],
+  options: SimulationOptions = {},
+): Promise<SimulationResult> {
+  const {
+    maxTime = 60000,
+    maxCompletions = Infinity,
+    timeout = 30000,
+  } = options;
+
+  const server = Player.getHomeComputer();
+  const script = server.scripts.get(scriptPath);
+  
+  if (!script) {
+    return {
+      moneyGained: 0,
+      initialMoney: 0,
+      finalMoney: 0,
+      timeSimulated: 0,
+      completions: 0,
+      logs: [],
+      success: false,
+      error: `Script ${scriptPath} does not exist on home server`,
+    };
+  }
+
+  const ramUsage = script.getRamUsage(server.scripts);
+  if (!ramUsage) {
+    return {
+      moneyGained: 0,
+      initialMoney: 0,
+      finalMoney: 0,
+      timeSimulated: 0,
+      completions: 0,
+      logs: [],
+      success: false,
+      error: `Cannot calculate RAM usage for ${scriptPath}`,
+    };
+  }
+
+  const initialMoney = Player.money;
+  const startTime = Date.now();
+  let completions = 0;
+  let totalSimulatedTime = 0;
+  const allLogs: string[] = [];
+  let firstRunTime = 0;
+
+  try {
+    // First, run the script once to see how long it takes
+    const runningScript = new RunningScript(script, ramUsage, args);
+    const pid = startWorkerScript(runningScript, server);
+
+    if (pid <= 0) {
+      return {
+        moneyGained: 0,
+        initialMoney,
+        finalMoney: Player.money,
+        timeSimulated: 0,
+        completions: 0,
+        logs: [],
+        success: false,
+        error: `Failed to start script ${scriptPath}`,
+      };
+    }
+
+    const workerScript = workerScripts.get(pid);
+    if (!workerScript) {
+      return {
+        moneyGained: 0,
+        initialMoney,
+        finalMoney: Player.money,
+        timeSimulated: 0,
+        completions: 0,
+        logs: [],
+        success: false,
+        error: `Worker script not found for PID ${pid}`,
+      };
+    }
+
+    // Wait for first run to complete
+    const scriptCompleted = new Promise<void>((resolve) => {
+      workerScript.atExit = new Map([["default", resolve]]);
+    });
+
+    const timeoutPromise = new Promise<void>((_, reject) => {
+      setTimeout(() => reject(new Error("Script execution timeout")), timeout);
+    });
+
+    const firstRunStart = Date.now();
+    await Promise.race([scriptCompleted, timeoutPromise]);
+    firstRunTime = Date.now() - firstRunStart;
+
+    completions++;
+    totalSimulatedTime += firstRunTime;
+    allLogs.push(...runningScript.logs);
+
+    const moneyAfterFirst = Player.money;
+    const moneyPerRun = moneyAfterFirst - initialMoney;
+
+    // Calculate how many more runs we can simulate
+    const timePerRun = firstRunTime;
+    const remainingTime = maxTime - totalSimulatedTime;
+    const additionalRuns = Math.min(
+      Math.floor(remainingTime / timePerRun),
+      maxCompletions - completions
+    );
+
+    // Simulate additional runs instantly by adjusting money
+    if (additionalRuns > 0 && moneyPerRun !== 0) {
+      Player.money += moneyPerRun * additionalRuns;
+      completions += additionalRuns;
+      totalSimulatedTime = maxTime; // We've simulated the full time
+      allLogs.push(`[Fast Mode] Simulated ${additionalRuns} additional runs instantly`);
+    }
+
+    const finalMoney = Player.money;
+
+    return {
+      moneyGained: finalMoney - initialMoney,
+      initialMoney,
+      finalMoney,
+      timeSimulated: totalSimulatedTime,
+      completions,
+      logs: allLogs,
+      success: true,
+    };
+  } catch (error) {
+    const realTimeElapsed = Date.now() - startTime;
+    return {
+      moneyGained: Player.money - initialMoney,
+      initialMoney,
+      finalMoney: Player.money,
+      timeSimulated: totalSimulatedTime || realTimeElapsed,
+      completions,
+      logs: allLogs,
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
 }
 
 /**
@@ -75,8 +225,15 @@ export async function simulateScript(
     maxCompletions = Infinity,
     checkInterval = 100,
     timeout = 300000,
+    fastMode = true,
   } = options;
 
+  // Use fast simulation by default
+  if (fastMode) {
+    return fastSimulate(scriptPath, args, options);
+  }
+
+  // Original slow simulation (kept for compatibility)
   const server = Player.getHomeComputer();
   const script = server.scripts.get(scriptPath);
   

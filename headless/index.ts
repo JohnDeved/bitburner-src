@@ -9,6 +9,7 @@
 export {
   getNS,
   setupBasicTestingEnvironment,
+  setupHackingTestEnvironment,
   initGameEnvironment,
   fixDoImportIssue,
   getMockedNetscriptContext,

@@ -37,9 +37,8 @@ tsdoc-metadata.json
 # Headless generated files - keep only TypeScript source
 headless/**/*.js
 headless/**/*.d.ts
-!headless/cli-wrapper.js
+!headless/cli-simple.js
 headless/src/
 headless/test/
 headless/headless/
 test/jest/.cli-temp/
-!headless/cli-jest.js

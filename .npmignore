@@ -1,0 +1,59 @@
+# Include everything by default, then exclude specific patterns
+
+# Build artifacts and development files
+*.log
+*.tgz
+.DS_Store
+.env
+.env.*
+
+# Development directories (keep these as they're needed)
+# node_modules is auto-excluded by npm
+
+# Electron app files
+.app/
+electron-main.js
+
+# Documentation that's not needed for the headless environment
+doc/
+lore/
+markdown/
+assets/
+
+# Development tools
+tools/
+.github/
+.vscode/
+.idea/
+
+# Build configs (keep what's needed)
+webpack.config.js
+babel.config.js
+.eslintrc.js
+.eslintignore
+.prettierrc
+.prettierignore
+
+# Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Git files
+.gitattributes
+.git_blame_ignore_revs
+
+# Test files that aren't part of the utility
+test/netscript/
+test/__mocks__/
+
+# CI/CD
+.readthedocs.yaml
+
+# Other
+favicon.ico
+.browserslistrc
+.editorconfig
+.nojekyll
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md

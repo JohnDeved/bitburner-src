@@ -3,6 +3,17 @@
   "license": "SEE LICENSE IN license.txt",
   "version": "3.0.0",
   "main": "electron-main.js",
+  "types": "headless/index.ts",
+  "exports": {
+    ".": {
+      "types": "./headless/index.ts",
+      "default": "./headless/index.ts"
+    },
+    "./headless": {
+      "types": "./headless/index.ts",
+      "default": "./headless/index.ts"
+    }
+  },
   "author": {
     "name": "Daniel Xie, hydroflame, et al."
   },

@@ -32,6 +32,10 @@ Options:
 Script Arguments:
   Any arguments before options are passed to your script
   
+Relative Files:
+  The CLI automatically detects and loads relative files referenced
+  by your script (e.g., worker scripts for ns.exec()).
+  
 Examples:
   # Simple usage
   npx JohnDeved/bitburner-src hack.js
@@ -43,6 +47,9 @@ Examples:
   # Pass arguments to your script
   npx JohnDeved/bitburner-src hack.js n00dles 10
   npx JohnDeved/bitburner-src hack.js foodnstuff --time 30
+  
+  # With worker files (automatically loaded)
+  npx JohnDeved/bitburner-src batch.js
   
   # JSON output for parsing
   npx JohnDeved/bitburner-src hack.js --json
@@ -123,6 +130,50 @@ const verbose = args.includes('--verbose') || args.includes('-v') && !args.inclu
 
 const content = fs.readFileSync(scriptPath, 'utf-8');
 const name = path.basename(scriptPath);
+const scriptDir = path.dirname(path.resolve(scriptPath));
+
+// Find and load relative file dependencies
+function findRelativeFiles(content, baseDir) {
+  const files = [];
+  // Match common patterns: exec("file.js"), write("file.js"), read("file.txt"), etc.
+  // Also match: ns.exec("file.js"), ns.write("file.txt"), etc.
+  const patterns = [
+    /(?:ns\.)?(?:exec|scp|write|read|run|spawn)\s*\(\s*["']([^"']+\.(?:js|ns|txt|script))/gi,
+    /["']([^"']+\.(?:js|ns|txt|script))["']/gi
+  ];
+  
+  for (const pattern of patterns) {
+    let match;
+    while ((match = pattern.exec(content)) !== null) {
+      const filePath = match[1];
+      // Only process relative paths (no absolute paths, no server:path patterns)
+      if (!filePath.startsWith('/') && !filePath.includes(':')) {
+        files.push(filePath);
+      }
+    }
+  }
+  
+  // Deduplicate and load files
+  const loaded = new Map();
+  for (const relPath of [...new Set(files)]) {
+    const fullPath = path.join(baseDir, relPath);
+    if (fs.existsSync(fullPath)) {
+      const fileContent = fs.readFileSync(fullPath, 'utf-8');
+      loaded.set(relPath, fileContent);
+      // Recursively find dependencies in this file
+      const nestedFiles = findRelativeFiles(fileContent, path.dirname(fullPath));
+      for (const [npath, ncontent] of nestedFiles) {
+        if (!loaded.has(npath)) {
+          loaded.set(npath, ncontent);
+        }
+      }
+    }
+  }
+  
+  return loaded;
+}
+
+const relativeFiles = findRelativeFiles(content, scriptDir);
 
 const tempDir = path.join(__dirname, '..', 'test', 'jest', '.cli-temp');
 if (!fs.existsSync(tempDir)) fs.mkdirSync(tempDir, { recursive: true });
@@ -137,7 +188,14 @@ describe("Sim", () => {
   beforeEach(() => { setupHackingTestEnvironment(); resetPidCounter(); });
   test("run", async () => {
     const s = Player.getHomeComputer();
+    
+    // Upload main script
     s.writeToScriptFile("${name}" as any, ${JSON.stringify(content)});
+    
+    // Upload relative file dependencies
+    ${Array.from(relativeFiles.entries()).map(([relPath, fileContent]) => 
+      `s.writeToScriptFile(${JSON.stringify(relPath)} as any, ${JSON.stringify(fileContent)});`
+    ).join('\n    ')}
     const json = ${json};
     const quiet = ${quiet};
     const verbose = ${verbose};
@@ -151,6 +209,7 @@ describe("Sim", () => {
       if (scriptArgs.length > 0) {
         console.log(\`📋 Args: \${scriptArgs.join(', ')}\`);
       }
+      ${relativeFiles.size > 0 ? `console.log(\`📦 Dependencies: ${relativeFiles.size} file(s) loaded\`);` : ''}
       console.log(\`⏱️  Time: ${mins} minutes\`);
       console.log(\`💰 Starting: $\${Player.money.toLocaleString()}\`);
       console.log(\`\\n⚡ Simulating...\\n\`);

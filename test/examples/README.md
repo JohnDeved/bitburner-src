@@ -2,6 +2,27 @@
 
 Example scripts demonstrating the headless test environment.
 
+## Automatic Dependency Loading
+
+The CLI automatically detects and loads relative files referenced by your scripts (e.g., worker scripts for `ns.exec()`). This includes files referenced with patterns like:
+- `ns.exec("worker.js", ...)`
+- `ns.scp("helper.js", ...)`  
+- `ns.write("data.txt", ...)`
+- `ns.read("config.txt")`
+
+All referenced files are automatically uploaded to the home server before simulation starts.
+
+## controller.js + worker.js
+
+Demonstrates automatic dependency loading. The controller script references `worker.js`, which is automatically detected and loaded.
+
+**Usage:**
+```bash
+npx JohnDeved/bitburner-src test/examples/controller.js --time 5
+```
+
+The CLI will show: `📦 Dependencies: 1 file(s) loaded`
+
 ## batch-hack.js
 
 Advanced HWGW (Hack-Weaken-Grow-Weaken) batch hacking algorithm.

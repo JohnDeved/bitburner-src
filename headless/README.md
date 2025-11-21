@@ -1,8 +1,9 @@
 # Bitburner Headless Test Environment
 
-Test Bitburner scripts in Node.js without running the full game. Measure money generation and validate your hacking algorithms.
+Test Bitburner scripts in Node.js without running the full game. Measure money generation and validate your hacking algorithms with **fast simulation** - 30 simulated minutes complete in ~20 seconds of real time.
 
 **⚡ Optimized**: ~5-10MB install (95% smaller than full package)  
+**🚀 Fast Simulation**: 30 game minutes in ~20 real seconds  
 **🔄 Works with infinite loops**: Automatically handles scripts designed to run forever
 
 ## Quick Start
@@ -11,11 +12,14 @@ Test Bitburner scripts in Node.js without running the full game. Measure money g
 # Install
 npm install --save-dev JohnDeved/bitburner-src
 
-# Test a script
+# Test a script (default: 30 simulated minutes)
 npx bitburner-src hack.js
 
-# Simulate for 60 minutes
+# Simulate for 60 game minutes (completes in ~40 real seconds)
 npx bitburner-src hack.js -t 60
+
+# For scripts needing longer runtime
+npx bitburner-src hack.js -t 180  # 3 simulated hours
 
 # With arguments
 npx bitburner-src hack.js n00dles -t 30
@@ -23,11 +27,16 @@ npx bitburner-src hack.js n00dles -t 30
 
 ## How It Works
 
-The simulator runs your script for the specified time and measures money generation. It works with:
+The simulator runs your script at **accelerated speed** - game time progresses much faster than real time. The `-t` option specifies **simulated game minutes**, not real-time seconds.
+
+**Fast Simulation**: Scripts execute as quickly as possible while maintaining accurate timing calculations for hack/grow/weaken operations. No estimation - all logic runs properly.
+
+Works with:
 
 - ✅ **Scripts that complete** - Runs and measures normally
 - ✅ **Infinite loop scripts** - Runs for the time limit, then stops and reports earnings
 - ✅ **Scripts with dependencies** - Automatically loads referenced files
+- ✅ **Long-running scripts** - Scripts taking 30+ minutes in vanilla game can be tested quickly
 
 No script modification needed! Your infinite-loop scripts work as-is.
 

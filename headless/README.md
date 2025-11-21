@@ -1,98 +1,83 @@
 # Bitburner Headless Test Environment
 
-Test Bitburner scripts in Node.js without running the full game.
+Test Bitburner scripts in Node.js without running the full game. Measure money generation and validate your hacking algorithms.
 
-**⚡ Optimized**: ~5-10MB install size (instead of 500MB+)
+**⚡ Optimized**: ~5-10MB install (95% smaller than full package)
 
-## Installation
+## Quick Start
 
 ```bash
+# Install
 npm install --save-dev JohnDeved/bitburner-src
+
+# Test a script
+npx bitburner-src hack.js
+
+# Simulate for 60 minutes
+npx bitburner-src hack.js -t 60
+
+# With arguments
+npx bitburner-src hack.js n00dles -t 30
 ```
 
-## CLI Usage
+## CLI Options
 
 ```bash
-# Simple - simulate 30 minutes
-npx bitburner-src script.js
-
-# Custom time (minutes)
-npx bitburner-src script.js -t 60
-
-# Pass script arguments
-npx bitburner-src script.js n00dles 10
-
-# Upload multiple files
-npx bitburner-src main.js -f utils.js,config.txt
-
-# Other modes
-npx bitburner-src script.js -q     # Quiet
-npx bitburner-src script.js -v     # Verbose
-npx bitburner-src script.js --json # JSON output
+-t, --time <min>   Simulation time in minutes (default: 30)
+-f, --files <...>  Additional files to upload (comma-separated)
+--json             Output as JSON
+-q, --quiet        Minimal output
+-v, --verbose      Show script logs
 ```
 
-## Testing with Jest
+## Jest Integration
 
 ```typescript
-import { getNS, setupHackingTestEnvironment, simulateScript } from "bitburner/headless";
+import { setupHackingTestEnvironment, getNS, simulateScript } from "bitburner/headless";
 
-describe("My Script", () => {
-  beforeEach(() => {
-    setupHackingTestEnvironment(); // Player with hacking 100, $100K
+test("hack script generates money", async () => {
+  setupHackingTestEnvironment(); // Hacking 100, $100K, 64GB RAM
+  const ns = getNS();
+  
+  await ns.write("hack.js", `
+    export async function main(ns) {
+      await ns.hack(ns.args[0] || "n00dles");
+    }
+  `, "w");
+  
+  const result = await simulateScript("hack.js", ["n00dles"], {
+    maxTime: 60000 // 1 minute
   });
-
-  test("generates money", async () => {
-    const ns = getNS();
-    const home = ns.getServer("home");
-    
-    // Write and run your script
-    await ns.write("hack.js", `
-      export async function main(ns) {
-        await ns.hack(ns.args[0] || "n00dles");
-      }
-    `, "w");
-    
-    const result = await simulateScript("hack.js", ["n00dles"], {
-      maxTime: 60000 // 60 seconds
-    });
-    
-    expect(result.success).toBe(true);
-    console.log(`Earned: $${result.moneyGained}`);
-  });
+  
+  expect(result.success).toBe(true);
+  console.log(`Earned: $${result.moneyGained.toLocaleString()}`);
 });
 ```
 
-## Available Functions
+## API Reference
 
+Core functions:
+- `setupHackingTestEnvironment()` - Ready-to-hack environment
 - `getNS()` - Get Netscript instance
-- `setupBasicTestingEnvironment()` - Clean environment
-- `setupHackingTestEnvironment()` - Pre-configured player (hacking 100, $100K, 64GB RAM)
-- `simulateScript(script, args, options)` - Run script and track money generation
-- `initGameEnvironment()` - Initialize game (call once)
-- `fixDoImportIssue()` - Fix imports (call once)
+- `simulateScript(script, args, options)` - Run and measure
 
-See examples in `test/examples/`.
+See `headless/index.ts` for complete API.
 
 ## TypeScript Support
 
-The CLI supports TypeScript files with imports:
+Both `.js` and `.ts` files are supported. TypeScript files are processed automatically:
 
 ```typescript
-// utils.ts
-export function helper() {
-  return "value";
-}
-
-// main.ts
-import { helper } from './utils';
-
 export async function main(ns: NS) {
-  ns.print(helper());
+  const target = ns.args[0] as string || "n00dles";
+  await ns.hack(target);
 }
 ```
 
-**Limitations:**
-- Complex TypeScript patterns may cause "Cannot calculate RAM usage" errors
-- Only relative imports (`./` or `../`) are supported
-- External npm packages are not available in Bitburner environment
-- If errors occur, simplify type annotations or test with plain JavaScript
+**Note**: Complex TypeScript patterns may cause RAM calculation errors. If this happens, simplify type annotations or use JavaScript.
+
+## Examples
+
+See `test/examples/` for working examples:
+- `basic-hack.js` - Simple hacking loop
+- `advanced-batch.js` - HWGW batching with multi-server deployment

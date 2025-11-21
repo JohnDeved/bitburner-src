@@ -1,32 +1,41 @@
-# Comprehensive exclusions to minimize package size
-# Only include what's strictly necessary for headless testing
+# Minimize package size - only include headless essentials
 
-# Build artifacts and development files
+# Development and tooling
 *.log
 *.tgz
 .DS_Store
-.env
-.env.*
+.env*
 *.map
+.git/
+.github/
+.vscode/
+.idea/
+node_modules/
+coverage/
 
-# Electron app files
+# Build artifacts
+dist/
+bundle/
 .app/
+
+# Electron and UI
 electron-main.js
 index.html
+favicon.ico
 
-# Large UI assets and docs
+# Large documentation and media
 doc/
 lore/
 markdown/
 assets/
-dist/
-bundle/
+*.png
+*.jpg
+*.gif
+*.svg
+*.mp3
+*.wav
 
-# Development tools and configs
-tools/
-.github/
-.vscode/
-.idea/
+# Development configs
 webpack.config.js
 .eslintrc.js
 .eslintignore
@@ -35,22 +44,21 @@ webpack.config.js
 Dockerfile
 docker-compose.yml
 .dockerignore
-.gitattributes
-.git_blame_ignore_revs
-.readthedocs.yaml
-favicon.ico
 .browserslistrc
 .editorconfig
 .nojekyll
+*.md
+!headless/*.md
 CODE_OF_CONDUCT.md
 CONTRIBUTING.md
 
-# Test files not needed for CLI
-test/netscript/
-test/__mocks__/
-test/examples/
+# Tests (except utilities)
+test/
+!test/jest/Utilities.ts
+!test/jest/Utilities.js
+!test/examples/
 
-# Source files not needed (keep only compiled/necessary ones)
+# Source files not needed for headless
 src/ui/
 src/Casino/
 src/Literature/
@@ -76,9 +84,5 @@ src/Bladeburner/
 src/CodingContract/
 src/Go/
 
-# Keep minimal test infrastructure
-!test/jest/Utilities.ts
-!test/jest/Utilities.js
-
-# Keep only headless essentials
-!headless/**
+# Tools and scripts
+tools/

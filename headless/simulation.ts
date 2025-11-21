@@ -52,8 +52,8 @@ export interface SimulationOptions {
 }
 
 /**
- * Fast simulation that runs multiple script iterations quickly
- * without waiting for real-time delays
+ * Fast simulation that runs scripts for a specified time period
+ * and measures money generation, handling both completing and infinite-loop scripts
  */
 async function fastSimulate(
   scriptPath: ScriptFilePath,
@@ -99,12 +99,10 @@ async function fastSimulate(
   const initialMoney = Player.money;
   const startTime = Date.now();
   let completions = 0;
-  let totalSimulatedTime = 0;
   const allLogs: string[] = [];
-  let firstRunTime = 0;
 
   try {
-    // First, run the script once to see how long it takes
+    // Start the script
     const runningScript = new RunningScript(script, ramUsage, args);
     const pid = startWorkerScript(runningScript, server);
 
@@ -135,49 +133,45 @@ async function fastSimulate(
       };
     }
 
-    // Wait for first run to complete
-    const scriptCompleted = new Promise<void>((resolve) => {
-      workerScript.atExit = new Map([["default", resolve]]);
+    // Track script completion
+    let scriptCompleted = false;
+    const scriptCompletionPromise = new Promise<void>((resolve) => {
+      workerScript.atExit = new Map([["default", () => {
+        scriptCompleted = true;
+        resolve();
+      }]]);
     });
 
-    const timeoutPromise = new Promise<void>((_, reject) => {
-      setTimeout(() => reject(new Error("Script execution timeout")), timeout);
+    // Wait for either script completion or timeout
+    const timeoutPromise = new Promise<void>((resolve) => {
+      setTimeout(resolve, Math.min(maxTime, timeout));
     });
 
-    const firstRunStart = Date.now();
-    await Promise.race([scriptCompleted, timeoutPromise]);
-    firstRunTime = Date.now() - firstRunStart;
+    await Promise.race([scriptCompletionPromise, timeoutPromise]);
 
-    completions++;
-    totalSimulatedTime += firstRunTime;
-    allLogs.push(...runningScript.logs);
-
-    const moneyAfterFirst = Player.money;
-    const moneyPerRun = moneyAfterFirst - initialMoney;
-
-    // Calculate how many more runs we can simulate
-    const timePerRun = firstRunTime;
-    const remainingTime = maxTime - totalSimulatedTime;
-    const additionalRuns = Math.min(
-      Math.floor(remainingTime / timePerRun),
-      maxCompletions - completions
-    );
-
-    // Simulate additional runs instantly by adjusting money
-    if (additionalRuns > 0 && moneyPerRun !== 0) {
-      Player.money += moneyPerRun * additionalRuns;
-      completions += additionalRuns;
-      totalSimulatedTime = maxTime; // We've simulated the full time
-      allLogs.push(`[Fast Mode] Simulated ${additionalRuns} additional runs instantly`);
+    // If script completed, it ran its full cycle
+    if (scriptCompleted) {
+      completions++;
     }
 
+    // Stop the script if it's still running (infinite loop case)
+    if (workerScripts.has(pid)) {
+      workerScript.env.stopFlag = true;
+      // Give it a moment to clean up
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    // Collect logs
+    allLogs.push(...runningScript.logs);
+
     const finalMoney = Player.money;
+    const realTimeElapsed = Date.now() - startTime;
 
     return {
       moneyGained: finalMoney - initialMoney,
       initialMoney,
       finalMoney,
-      timeSimulated: totalSimulatedTime,
+      timeSimulated: realTimeElapsed,
       completions,
       logs: allLogs,
       success: true,
@@ -188,7 +182,7 @@ async function fastSimulate(
       moneyGained: Player.money - initialMoney,
       initialMoney,
       finalMoney: Player.money,
-      timeSimulated: totalSimulatedTime || realTimeElapsed,
+      timeSimulated: realTimeElapsed,
       completions,
       logs: allLogs,
       success: false,

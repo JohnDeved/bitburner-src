@@ -2,7 +2,8 @@
 
 Test Bitburner scripts in Node.js without running the full game. Measure money generation and validate your hacking algorithms.
 
-**⚡ Optimized**: ~5-10MB install (95% smaller than full package)
+**⚡ Optimized**: ~5-10MB install (95% smaller than full package)  
+**🔄 Works with infinite loops**: Automatically handles scripts designed to run forever
 
 ## Quick Start
 
@@ -19,6 +20,16 @@ npx bitburner-src hack.js -t 60
 # With arguments
 npx bitburner-src hack.js n00dles -t 30
 ```
+
+## How It Works
+
+The simulator runs your script for the specified time and measures money generation. It works with:
+
+- ✅ **Scripts that complete** - Runs and measures normally
+- ✅ **Infinite loop scripts** - Runs for the time limit, then stops and reports earnings
+- ✅ **Scripts with dependencies** - Automatically loads referenced files
+
+No script modification needed! Your infinite-loop scripts work as-is.
 
 ## CLI Options
 

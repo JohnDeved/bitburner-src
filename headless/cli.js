@@ -38,6 +38,11 @@ Examples:
   npx bitburner-src hack.js n00dles -t 60
   npx bitburner-src main.js -f utils.js,config.txt
   npx bitburner-src hack.js --json
+
+Note:
+  The simulator runs your script for the specified time and measures
+  money generation. Works with both completing scripts and infinite loops.
+  Infinite-loop scripts will be terminated after the time limit.
 `);
   process.exit(0);
 }

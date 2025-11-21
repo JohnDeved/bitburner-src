@@ -23,7 +23,11 @@
   "bugs": {
     "url": "https://github.com/bitburner-official/bitburner-src/issues"
   },
-  "dependencies": {
+  "dependencies": {},
+  "peerDependencies": {
+    "jest": ">=29.0.0"
+  },
+  "optionalDependencies": {
     "@babel/standalone": "^7.26.2",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",

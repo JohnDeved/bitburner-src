@@ -2,6 +2,8 @@
 
 Test Bitburner scripts in Node.js without running the full game.
 
+**⚡ Optimized**: ~5-10MB install size (instead of 500MB+)
+
 ## Installation
 
 ```bash

@@ -144,7 +144,6 @@
     "build:dev": "bash ./tools/build.sh development",
     "lint": "eslint --fix --ext js,jsx,ts,tsx --max-warnings 0 src test",
     "lint:report": "eslint --ext js,jsx,ts,tsx --max-warnings 0 src test",
-    "preinstall": "node ./tools/engines-check/engines-check.js",
     "test": "jest",
     "test:watch": "jest --watch",
     "watch": "webpack --watch --mode production",

@@ -9,21 +9,55 @@
 const path = require('path');
 const fs = require('fs');
 
-// Register TypeScript extension handler if needed
+// Use ts-node to handle TypeScript files
 try {
+  // Try to use ts-node if available (for TypeScript support)
+  require('ts-node/register/transpile-only');
+} catch (e) {
+  // ts-node not available, try a simpler approach
+  // Register TypeScript extension handler
   require.extensions['.ts'] = function (module, filename) {
     const content = fs.readFileSync(filename, 'utf8');
-    // Strip TypeScript syntax (simple version - removes types and imports)
-    const jsContent = content
-      .replace(/^import .+ from .+;?$/gm, '') // Remove imports
-      .replace(/^export \{[^}]+\};?$/gm, '') // Remove export statements
-      .replace(/: [A-Z][a-zA-Z<>[\]|&, ]+/g, '') // Remove type annotations
-      .replace(/^export (default |async )?(function|class|const|let|var)/gm, '$1$2'); // Remove export keywords
+    // Convert ES6 imports/exports to CommonJS
+    let jsContent = content
+      // Convert: export { a, b } from 'module'
+      .replace(/export\s*\{([^}]+)\}\s*from\s*['"]([^'"]+)['"]/g, (match, exports, from) => {
+        const items = exports.split(',').map(e => e.trim());
+        return `const { ${items.join(', ')} } = require('${from}');\nmodule.exports = Object.assign(module.exports || {}, { ${items.join(', ')} });`;
+      })
+      // Convert: export { a, b }
+      .replace(/export\s*\{([^}]+)\}/g, (match, exports) => {
+        return `module.exports = Object.assign(module.exports || {}, { ${exports} });`;
+      })
+      // Convert: export type { ... } (remove)
+      .replace(/export\s+type\s*\{[^}]+\}/g, '')
+      // Convert: import { a, b } from 'module'
+      .replace(/import\s*\{([^}]+)\}\s*from\s*['"]([^'"]+)['"]/g, 'const { $1 } = require(\'$2\')')
+      // Convert: import * as name from 'module'
+      .replace(/import\s*\*\s*as\s+(\w+)\s+from\s*['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\')')
+      // Convert: import name from 'module'
+      .replace(/import\s+(\w+)\s+from\s*['"]([^'"]+)['"]/g, 'const $1 = require(\'$2\')')
+      // Remove type annotations
+      .replace(/:\s*[A-Z]\w*(<[^>]+>)?(\[\])?/g, '')
+      .replace(/as\s+[A-Z]\w*/g, '')
+      // Convert: export function/class/const/let/var
+      .replace(/export\s+(async\s+)?(function|class)\s+/g, '$1$2 ')
+      .replace(/export\s+(const|let|var)\s+(\w+)/g, '$1 $2')
+      // Add exports for declarations
+      .replace(/((?:async\s+)?(?:function|class)\s+(\w+))/g, (match, decl, name) => {
+        if (!decl.includes('export')) {
+          return `${decl};\nif (typeof module !== 'undefined') module.exports.${name} = ${name};`;
+        }
+        return decl;
+      });
     
-    module._compile(jsContent, filename);
+    try {
+      module._compile(jsContent, filename);
+    } catch (compileError) {
+      console.error(`Error compiling ${filename}:`, compileError.message);
+      throw compileError;
+    }
   };
-} catch (e) {
-  // Extension handler already exists
 }
 
 // Parse arguments

@@ -9,15 +9,9 @@
 const path = require('path');
 const fs = require('fs');
 
-// Setup TypeScript support using tsx
-try {
-  require('tsx/cjs');
-} catch (e) {
-  console.error('\n❌ Error: tsx is required but not installed.');
-  console.error('This should not happen - tsx is a dependency.\n');
-  console.error(e.message);
-  process.exit(1);
-}
+// Setup tsx with tsconfig for path alias resolution
+process.env.TSX_TSCONFIG_PATH = path.join(__dirname, '../tsconfig.json');
+require('tsx/cjs');
 
 // Parse arguments
 const args = process.argv.slice(2);
@@ -111,21 +105,13 @@ if (isNaN(timeMinutes) || timeMinutes <= 0) {
   process.exit(1);
 }
 
-// Run simulation using headless module
+// Run simulation using headless module with Jest runtime
 (async () => {
   try {
-    // Import from headless module (ts-node handles TypeScript)
-    const {
-      setupHackingTestEnvironment,
-      getNS,
-      simulateScript,
-      initGameEnvironment,
-      fixDoImportIssue,
-    } = require('./index');
-    
-    // Initialize game environment
-    fixDoImportIssue();
-    initGameEnvironment();
+    // Load headless utilities using Jest's require which handles path aliases
+    const testUtils = require('../test/jest/Utilities');
+    const { setupHackingTestEnvironment, getNS } = testUtils;
+    const { simulateScript } = require('./simulation');
     
     // Setup environment
     setupHackingTestEnvironment();

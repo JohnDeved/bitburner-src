@@ -9,6 +9,23 @@
 const path = require('path');
 const fs = require('fs');
 
+// Register TypeScript extension handler if needed
+try {
+  require.extensions['.ts'] = function (module, filename) {
+    const content = fs.readFileSync(filename, 'utf8');
+    // Strip TypeScript syntax (simple version - removes types and imports)
+    const jsContent = content
+      .replace(/^import .+ from .+;?$/gm, '') // Remove imports
+      .replace(/^export \{[^}]+\};?$/gm, '') // Remove export statements
+      .replace(/: [A-Z][a-zA-Z<>[\]|&, ]+/g, '') // Remove type annotations
+      .replace(/^export (default |async )?(function|class|const|let|var)/gm, '$1$2'); // Remove export keywords
+    
+    module._compile(jsContent, filename);
+  };
+} catch (e) {
+  // Extension handler already exists
+}
+
 // Parse arguments
 const args = process.argv.slice(2);
 
@@ -101,17 +118,21 @@ if (isNaN(timeMinutes) || timeMinutes <= 0) {
   process.exit(1);
 }
 
-// Run simulation using Jest infrastructure
+// Run simulation using headless module
 (async () => {
   try {
-    // Initialize Jest environment
-    require('../test/jest/Utilities');
+    // Use headless module exports (works standalone)
     const {
       setupHackingTestEnvironment,
       getNS,
-    } = require('../test/jest/Utilities');
+      simulateScript,
+      initGameEnvironment,
+      fixDoImportIssue,
+    } = require('./index');
     
-    const { simulateScript } = require('./simulation');
+    // Initialize game environment
+    fixDoImportIssue();
+    initGameEnvironment();
     
     // Setup environment
     setupHackingTestEnvironment();

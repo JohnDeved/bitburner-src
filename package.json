@@ -23,9 +23,9 @@
   "bugs": {
     "url": "https://github.com/bitburner-official/bitburner-src/issues"
   },
-  "dependencies": {},
-  "peerDependencies": {
-    "jest": ">=29.0.0"
+  "dependencies": {
+    "jest": "^29.7.0",
+    "babel-jest": "^29.7.0"
   },
   "optionalDependencies": {
     "@babel/standalone": "^7.26.2",

@@ -9,12 +9,13 @@
 const path = require('path');
 const fs = require('fs');
 
-// Setup TypeScript support - use ts-node which should be available via Jest
+// Setup TypeScript support using tsx
 try {
-  require('ts-node/register');
+  require('tsx/cjs');
 } catch (e) {
-  console.error('\n❌ Error: ts-node is required but not installed.');
-  console.error('Install it with: npm install -D ts-node typescript\n');
+  console.error('\n❌ Error: tsx is required but not installed.');
+  console.error('This should not happen - tsx is a dependency.\n');
+  console.error(e.message);
   process.exit(1);
 }
 

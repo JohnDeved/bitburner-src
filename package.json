@@ -23,9 +23,7 @@
   "bugs": {
     "url": "https://github.com/bitburner-official/bitburner-src/issues"
   },
-  "dependencies": {
-    "tsx": "^4.19.2"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "jest": ">=29.0.0"
   },

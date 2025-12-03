@@ -245,16 +245,23 @@ try {
   process.exit(1);
 }
 
+// Get the root directory (bitburner-src package root)
+const rootDir = path.join(__dirname, '..');
+
 const jestArgs = [
   testFile,
+  '--rootDir=' + rootDir,
   '--testTimeout=600000',
   '--verbose=false',
   '--noStackTrace',
+  '--no-coverage',
+  '--passWithNoTests=false',
 ];
 
 const jest = spawn(process.execPath, [jestPath, ...jestArgs], {
-  cwd: path.join(__dirname, '..'),
+  cwd: rootDir,
   stdio: 'inherit',
+  env: { ...process.env, NODE_ENV: 'test' },
 });
 
 jest.on('close', (code) => {

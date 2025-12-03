@@ -248,8 +248,11 @@ try {
 // Get the root directory (bitburner-src package root)
 const rootDir = path.join(__dirname, '..');
 
+// Make test file path relative to rootDir for Jest
+const relativeTestFile = path.relative(rootDir, testFile);
+
 const jestArgs = [
-  testFile,
+  relativeTestFile,
   '--rootDir=' + rootDir,
   '--testTimeout=600000',
   '--verbose=false',

@@ -251,7 +251,7 @@ const rootDir = path.join(__dirname, '..');
 // Convert test file to relative path from rootDir for Jest
 const relativeTestFile = path.relative(rootDir, testFile);
 
-// Run Jest with the test file directly
+// Run Jest with the test file - use testMatch to explicitly specify the file
 const jestArgs = [
   '--rootDir=' + rootDir,
   '--testTimeout=600000',
@@ -259,7 +259,7 @@ const jestArgs = [
   '--noStackTrace',
   '--no-coverage',
   '--passWithNoTests=false',
-  relativeTestFile,  // Pass relative path as final argument
+  '--testMatch=' + testFile,  // Use absolute path with testMatch
 ];
 
 const jest = spawn(process.execPath, [jestPath, ...jestArgs], {

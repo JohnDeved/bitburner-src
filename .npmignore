@@ -1,0 +1,88 @@
+# Minimize package size - only include headless essentials
+
+# Development and tooling
+*.log
+*.tgz
+.DS_Store
+.env*
+*.map
+.git/
+.github/
+.vscode/
+.idea/
+node_modules/
+coverage/
+
+# Build artifacts
+dist/
+bundle/
+.app/
+
+# Electron and UI
+electron-main.js
+index.html
+favicon.ico
+
+# Large documentation and media
+doc/
+lore/
+markdown/
+assets/
+*.png
+*.jpg
+*.gif
+*.svg
+*.mp3
+*.wav
+
+# Development configs
+webpack.config.js
+.eslintrc.js
+.eslintignore
+.prettierrc
+.prettierignore
+Dockerfile
+docker-compose.yml
+.dockerignore
+.browserslistrc
+.editorconfig
+.nojekyll
+*.md
+!headless/*.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+
+# Tests (except utilities)
+test/
+!test/jest/Utilities.ts
+!test/jest/Utilities.js
+!test/examples/
+
+# Source files not needed for headless
+src/ui/
+src/Casino/
+src/Literature/
+src/Lore/
+src/Message/
+src/Themes/
+src/Achievements/
+src/Company/
+src/Corporation/
+src/DevMenu/
+src/Faction/
+src/Gang/
+src/Infiltration/
+src/Milestones/
+src/MissionBoard/
+src/SaveObject/
+src/Settings/
+src/SourceFile/
+src/TravelAgency/
+src/StockMarket/
+src/Sleeve/
+src/Bladeburner/
+src/CodingContract/
+src/Go/
+
+# Tools and scripts
+tools/

@@ -233,7 +233,18 @@ test('CLI simulation', async () => {
 fs.writeFileSync(testFile, testContent);
 
 // Run Jest on the temporary test file
-const jestPath = path.join(__dirname, '../node_modules/.bin/jest');
+// Use require.resolve to find jest executable - works with both local install and npx
+let jestPath;
+try {
+  // First try to resolve jest package
+  const jestPkgPath = require.resolve('jest/package.json');
+  jestPath = path.join(path.dirname(jestPkgPath), 'bin', 'jest.js');
+} catch (e) {
+  console.error('\n❌ Error: Failed to find Jest');
+  console.error('Make sure Jest is installed: npm install jest\n');
+  process.exit(1);
+}
+
 const jestArgs = [
   testFile,
   '--testTimeout=600000',
@@ -241,10 +252,9 @@ const jestArgs = [
   '--noStackTrace',
 ];
 
-const jest = spawn(jestPath, jestArgs, {
+const jest = spawn(process.execPath, [jestPath, ...jestArgs], {
   cwd: path.join(__dirname, '..'),
   stdio: 'inherit',
-  shell: process.platform === 'win32',
 });
 
 jest.on('close', (code) => {

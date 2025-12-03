@@ -248,17 +248,18 @@ try {
 // Get the root directory (bitburner-src package root)
 const rootDir = path.join(__dirname, '..');
 
-// Use --findRelatedTests to run the specific test file
-// This works better with npx installations where path resolution can be tricky
+// Convert test file to relative path from rootDir for Jest
+const relativeTestFile = path.relative(rootDir, testFile);
+
+// Run Jest with the test file directly
 const jestArgs = [
-  '--findRelatedTests',
-  testFile,  // Use absolute path
   '--rootDir=' + rootDir,
   '--testTimeout=600000',
   '--verbose=false',
   '--noStackTrace',
   '--no-coverage',
   '--passWithNoTests=false',
+  relativeTestFile,  // Pass relative path as final argument
 ];
 
 const jest = spawn(process.execPath, [jestPath, ...jestArgs], {

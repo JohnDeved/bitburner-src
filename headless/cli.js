@@ -102,8 +102,9 @@ if (isNaN(timeMinutes) || timeMinutes <= 0) {
   process.exit(1);
 }
 
-// Create a temporary Jest test file in test directory (Jest roots)
-const tmpDir = path.join(__dirname, '../test/.cli-tmp');
+// Create a temporary Jest test file in user's current directory (outside node_modules)
+// This avoids Jest's testPathIgnorePatterns which blocks node_modules
+const tmpDir = path.join(process.cwd(), '.bitburner-tmp');
 if (!fs.existsSync(tmpDir)) {
   fs.mkdirSync(tmpDir, { recursive: true });
 }
@@ -115,8 +116,8 @@ const absoluteFiles = additionalFiles.map(f => path.resolve(f));
 const testContent = `
 const fs = require('fs');
 const path = require('path');
-const { setupHackingTestEnvironment, getNS } = require('../jest/Utilities');
-const { simulateScript } = require('../../headless/simulation');
+const { setupHackingTestEnvironment, getNS } = require(${JSON.stringify(path.join(rootDir, 'test/jest/Utilities'))});
+const { simulateScript } = require(${JSON.stringify(path.join(rootDir, 'headless/simulation'))});
 
 test('CLI simulation', async () => {
   setupHackingTestEnvironment();
@@ -248,11 +249,7 @@ try {
 // Get the root directory (bitburner-src package root)
 const rootDir = path.join(__dirname, '..');
 
-// Convert test file to relative path from rootDir for Jest
-const relativeTestFile = path.relative(rootDir, testFile);
-
 // Run Jest with the test file using absolute pattern
-// Jest's --testMatch needs full pattern with <rootDir> prefix
 const jestArgs = [
   '--rootDir=' + rootDir,
   '--testTimeout=600000',
@@ -260,7 +257,7 @@ const jestArgs = [
   '--noStackTrace',
   '--no-coverage',
   '--passWithNoTests=false',
-  '--testMatch', `<rootDir>/${relativeTestFile}`,  // Use full pattern from rootDir
+  '--testMatch', testFile,  // Use absolute path to test file
 ];
 
 const jest = spawn(process.execPath, [jestPath, ...jestArgs], {

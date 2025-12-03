@@ -3,13 +3,18 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import babelJest from "babel-jest";
+import { createRequire } from "module";
+
+const require = createRequire(import.meta.url);
 
 export function process(sourceText, sourcePath, options) {
-  const alias = options?.config?.moduleNameMapper;
-  const extensions = options.config.moduleFileExtensions;
   const babelTransformer = babelJest.createTransformer({
-    presets: [["@babel/preset-react"], ["@babel/preset-env"], ["@babel/preset-typescript"]],
-    plugins: [["transform-barrels", { executorName: "jest", alias: alias, extensions: extensions }]],
+    presets: [
+      [require.resolve('@babel/preset-react')],
+      [require.resolve('@babel/preset-env')],
+      [require.resolve('@babel/preset-typescript')]
+    ],
+    plugins: [],  // Removed transform-barrels for npx compatibility
     babelrc: false,
     configFile: false,
   });
